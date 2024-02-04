@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/temporalio/samples-go/helloworld"
 	"log"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-
-	"github.com/temporalio/samples-go/helloworld"
 )
 
 func main() {

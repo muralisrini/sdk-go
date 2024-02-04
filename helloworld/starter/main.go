@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
+	"github.com/temporalio/samples-go/helloworld"
 	"log"
 
 	"go.temporal.io/sdk/client"
-
-	"github.com/temporalio/samples-go/helloworld"
 )
 
 func main() {
@@ -17,23 +15,9 @@ func main() {
 	}
 	defer c.Close()
 
-	workflowOptions := client.StartWorkflowOptions{
-		ID:        "hello_world_workflowID",
-		TaskQueue: "hello-world",
-	}
-
-	we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, helloworld.Workflow, "Temporal")
+	result, err := helloworld.Run(c, "hello-world")
 	if err != nil {
-		log.Fatalln("Unable to execute workflow", err)
-	}
-
-	log.Println("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
-
-	// Synchronously wait for the workflow completion.
-	var result string
-	err = we.Get(context.Background(), &result)
-	if err != nil {
-		log.Fatalln("Unable get workflow result", err)
+		log.Fatalln("Workflow run failed with err:", err)
 	}
 	log.Println("Workflow result:", result)
 }

@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.temporal.io/sdk/testsuite"
+
+	tsenv "github.com/temporalio/samples-go/helloworld/testserver"
 )
 
 func Test_Workflow(t *testing.T) {
@@ -36,4 +38,28 @@ func Test_Activity(t *testing.T) {
 	var res string
 	require.NoError(t, val.Get(&res))
 	require.Equal(t, "Hello World!", res)
+}
+
+func Test_Using_DevServer(t *testing.T) {
+	testServerEnv := tsenv.New("", "hello-world")
+	err := testServerEnv.Start()
+	require.NoError(t, err)
+
+	w, err := testServerEnv.Worker()
+	require.NoError(t, err)
+	require.NotNil(t, w)
+
+	w.RegisterWorkflow(Workflow)
+	w.RegisterActivity(Activity)
+
+	c, err := testServerEnv.Client()
+	require.NoError(t, err)
+	require.NotNil(t, c)
+
+	result, err := Run(c, testServerEnv.TaskQ)
+	require.NoError(t, err)
+	require.Equal(t, "Hello Temporal!", result)
+
+	err = testServerEnv.Stop()
+	require.NoError(t, err)
 }
